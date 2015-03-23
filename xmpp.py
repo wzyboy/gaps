@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import json
 import subprocess
 
@@ -85,7 +86,8 @@ def get_keywords(keywords_file):
 def notify_send(summary, body, urgency='critical'):
 
     cmd = ['notify-send', '-u', urgency, summary, body]
-    subprocess.call(cmd)
+    env = dict(os.environ, DISPLAY=':0')
+    subprocess.call(cmd, env=env)
 
 
 if __name__ == '__main__':
