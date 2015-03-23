@@ -33,6 +33,7 @@ class HighlightXMPP(ClientXMPP):
             self.disconnect()
         print('Loading keywords ...')
         self.keywords = get_keywords('keywords.json')
+        print('Loaded keywords:', self.keywords)
         print("Initialization sequence completed. Ready for service.")
 
     def message_handler(self, msg):
