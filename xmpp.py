@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import json
+import subprocess
 
 from time import strftime, localtime
 from getpass import getpass
@@ -59,6 +60,12 @@ def get_config(config_file):
     config.close()
 
     return config_dict
+
+
+def notify_send(summary, body, urgency='critical'):
+
+    cmd = ['notify-send', '-u', urgency, summary, body]
+    subprocess.call(cmd)
 
 
 if __name__ == '__main__':
