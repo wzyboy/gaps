@@ -1,60 +1,78 @@
 #!/usr/bin/env python3
 
-import logging
+import json
 
+from time import strftime, localtime
+from getpass import getpass
+from termcolor import colored
 from sleekxmpp import ClientXMPP
 from sleekxmpp.exceptions import IqError, IqTimeout
 
 
-class EchoBot(ClientXMPP):
+class HighlightXMPP(ClientXMPP):
 
     def __init__(self, jid, password):
         ClientXMPP.__init__(self, jid, password)
 
         self.add_event_handler("session_start", self.session_start)
-        self.add_event_handler("message", self.message)
-
-        # If you wanted more functionality, here's how to register plugins:
-        # self.register_plugin('xep_0030') # Service Discovery
-        # self.register_plugin('xep_0199') # XMPP Ping
-
-        # Here's how to access plugins once you've registered them:
-        # self['xep_0030'].add_feature('echo_demo')
-
-        # If you are working with an OpenFire server, you will
-        # need to use a different SSL version:
-        # import ssl
-        # self.ssl_version = ssl.PROTOCOL_SSLv3
+        self.add_event_handler("message", self.printmsg)
 
     def session_start(self, event):
-        self.send_presence()
-        self.get_roster()
 
-        # Most get_*/set_* methods from plugins use Iq stanzas, which
-        # can generate IqError and IqTimeout exceptions
-        #
-        # try:
-        #     self.get_roster()
-        # except IqError as err:
-        #     logging.error('There was an error getting the roster')
-        #     logging.error(err.iq['error']['condition'])
-        #     self.disconnect()
-        # except IqTimeout:
-        #     logging.error('Server is taking too long to respond')
-        #     self.disconnect()
+        print("Getting roster ...")
+        try:
+            self.send_presence()
+            self.get_roster()
+        except IqError as err:
+            print('There was an error getting the roster')
+            print(err.iq['error']['condition'])
+            self.disconnect()
+        except IqTimeout:
+            print('Server is taking too long to respond')
+            self.disconnect()
+        print("Initialization sequence completed. Ready for service.")
 
-    def message(self, msg):
+    def printmsg(self, msg):
+
+        timestamp = strftime('%Y-%m-%d %H:%M:%S', localtime())
         if msg['type'] in ('chat', 'normal'):
-            msg.reply("Thanks for sending\n%(body)s" % msg).send()
+            if msg['body'].startswith('[ALARM]'):
+                mm = colored(msg['body'], 'red')
+                print(timestamp, mm)
+            elif msg['body'].startswith('[RECOVERY]'):
+                mm = colored(msg['body'], 'green')
+                print(timestamp, mm)
+            else:
+                mm = msg['body']
+                print(timestamp, mm)
+
+
+def get_config(config_file):
+
+    try:
+        config = open(config_file, 'r')
+    except OSError:
+        print(config_file, ' not found.')
+        sys.exit(1)
+
+    config_dict = json.load(config)
+    config.close()
+
+    return config_dict
 
 
 if __name__ == '__main__':
-    # Ideally use optparse or argparse to get JID,
-    # password, and log level.
 
-    logging.basicConfig(level=logging.DEBUG,
-                        format='%(levelname)-8s %(message)s')
+    config_dict = get_config('xmpp.json')
+    jid = config_dict['jid']
+    resource = config_dict['resource']
+    host = config_dict['host']
+    port = config_dict['port']
 
-    xmpp = EchoBot('somejid@example.com', 'use_getpass')
-    xmpp.connect()
-    xmpp.process(block=True)
+    full_jid = '/'.join([jid, resource])
+    password = getpass()
+    xmpp = HighlightXMPP(full_jid, password)
+
+    xmpp.connect(address=(host, port))
+    print('Connected. Logging in ...')
+    xmpp.process(block=False)
