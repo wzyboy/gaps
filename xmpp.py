@@ -70,7 +70,10 @@ if __name__ == '__main__':
     port = config_dict['port']
 
     full_jid = '/'.join([jid, resource])
-    password = getpass()
+    try:
+        password = config_dict['password']
+    except KeyError:
+        password = getpass()
     xmpp = HighlightXMPP(full_jid, password)
 
     xmpp.connect(address=(host, port))
