@@ -59,7 +59,7 @@ def get_config(config_file):
 
     try:
         config = open(config_file, 'r')
-    except OSError:
+    except FileNotFoundError:
         print(config_file, ' not found.')
         sys.exit(1)
 
@@ -73,7 +73,7 @@ def get_keywords(keywords_file):
 
     try:
         keywords = open(keywords_file, 'r')
-    except OSError:
+    except FileNotFoundError:
         print(keywords_file, ' not found.')
         sys.exit(1)
 
