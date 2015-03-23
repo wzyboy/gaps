@@ -16,7 +16,7 @@ class HighlightXMPP(ClientXMPP):
         ClientXMPP.__init__(self, jid, password)
 
         self.add_event_handler("session_start", self.session_start)
-        self.add_event_handler("message", self.printmsg)
+        self.add_event_handler("message", self.message_handler)
 
     def session_start(self, event):
 
@@ -33,13 +33,14 @@ class HighlightXMPP(ClientXMPP):
             self.disconnect()
         print("Initialization sequence completed. Ready for service.")
 
-    def printmsg(self, msg):
+    def message_handler(self, msg):
 
         timestamp = strftime('%Y-%m-%d %H:%M:%S', localtime())
         if msg['type'] in ('chat', 'normal'):
             if msg['body'].startswith('[ALARM]'):
                 mm = colored(msg['body'], 'red')
                 print(timestamp, mm)
+                notify_send('[ALARM]', msg)
             elif msg['body'].startswith('[RECOVERY]'):
                 mm = colored(msg['body'], 'green')
                 print(timestamp, mm)
