@@ -31,6 +31,8 @@ class HighlightXMPP(ClientXMPP):
         except IqTimeout:
             print('Server is taking too long to respond')
             self.disconnect()
+        print('Loading keywords ...')
+            self.keywords = get_keywords('keywords.json')
         print("Initialization sequence completed. Ready for service.")
 
     def message_handler(self, msg):
@@ -40,7 +42,9 @@ class HighlightXMPP(ClientXMPP):
             if msg['body'].startswith('[ALARM]'):
                 mm = colored(msg['body'], 'red')
                 print(timestamp, mm)
-                notify_send('[ALARM]', msg)
+                for keyword in keywords:
+                    if msg['body'].find(keyword):
+                        notify_send('HEADS UP!!!', msg)
             elif msg['body'].startswith('[RECOVERY]'):
                 mm = colored(msg['body'], 'green')
                 print(timestamp, mm)
@@ -61,6 +65,18 @@ def get_config(config_file):
     config.close()
 
     return config_dict
+
+
+def get_keywords(keywords_file):
+
+    try:
+        keywords = open(keywords_file, 'r')
+    except OSError:
+        print(keywords_file, ' not found.')
+        sys.exit(1)
+
+    keywords_dict = json.load(keywords)
+    keywords.close()
 
 
 def notify_send(summary, body, urgency='critical'):
