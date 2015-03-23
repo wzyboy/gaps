@@ -63,17 +63,21 @@ def get_config(config_file):
 
 if __name__ == '__main__':
 
-    config_dict = get_config('xmpp.json')
-    jid = config_dict['jid']
-    resource = config_dict['resource']
-    host = config_dict['host']
-    port = config_dict['port']
-
-    full_jid = '/'.join([jid, resource])
+    try:
+        config_dict = get_config('xmpp.json')
+        jid = config_dict['jid']
+        resource = config_dict['resource']
+        host = config_dict['host']
+        port = config_dict['port']
+    except KeyError as e:
+        print('Missing key: ', e)
+        sys.exit(1)
     try:
         password = config_dict['password']
     except KeyError:
         password = getpass()
+
+    full_jid = '/'.join([jid, resource])
     xmpp = HighlightXMPP(full_jid, password)
 
     xmpp.connect(address=(host, port))
