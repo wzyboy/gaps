@@ -75,8 +75,10 @@ def get_keywords(keywords_file):
         print(keywords_file, ' not found.')
         sys.exit(1)
 
-    keywords_dict = json.load(keywords)
+    keywords_list = json.load(keywords)["keywords"]
     keywords.close()
+
+    return keywords_list
 
 
 def notify_send(summary, body, urgency='critical'):
