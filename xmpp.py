@@ -46,7 +46,7 @@ class HighlightXMPP(ClientXMPP):
                 print(timestamp, mm)
                 for keyword in self.keywords:
                     if msg['body'].find(keyword):
-                        notify_send('HEADS UP!!!', msg)
+                        notify_send('HEADS UP!!!', msg['body'])
             elif msg['body'].startswith('[RECOVERY]'):
                 mm = colored(msg['body'], 'green')
                 print(timestamp, mm)
@@ -88,6 +88,7 @@ def notify_send(summary, body, urgency='critical'):
     cmd = ['notify-send', '-u', urgency, summary, body]
     env = dict(os.environ, DISPLAY=':0')
     subprocess.call(cmd, env=env)
+    print('Notify sent.')
 
 
 if __name__ == '__main__':
