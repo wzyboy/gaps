@@ -45,7 +45,7 @@ class HighlightXMPP(ClientXMPP):
                 mm = colored(msg['body'], 'red')
                 print(timestamp, mm)
                 for keyword in self.keywords:
-                    if msg['body'].find(keyword):
+                    if msg['body'].find(keyword) > -1:
                         notify_send('HEADS UP!!!', msg['body'])
             elif msg['body'].startswith('[RECOVERY]'):
                 mm = colored(msg['body'], 'green')
