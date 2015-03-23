@@ -32,7 +32,7 @@ class HighlightXMPP(ClientXMPP):
             print('Server is taking too long to respond')
             self.disconnect()
         print('Loading keywords ...')
-            self.keywords = get_keywords('keywords.json')
+        self.keywords = get_keywords('keywords.json')
         print("Initialization sequence completed. Ready for service.")
 
     def message_handler(self, msg):
