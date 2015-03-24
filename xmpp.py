@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import sys
 import json
 import subprocess
 
@@ -20,7 +21,6 @@ class HighlightXMPP(ClientXMPP):
         self.add_event_handler("message", self.message_handler)
 
     def session_start(self, event):
-
         print("Getting roster ...")
         try:
             self.send_presence()
@@ -38,7 +38,6 @@ class HighlightXMPP(ClientXMPP):
         print("Initialization sequence completed. Ready for service.")
 
     def message_handler(self, msg):
-
         timestamp = strftime('%Y-%m-%d %H:%M:%S', localtime())
         if msg['type'] in ('chat', 'normal'):
             if msg['body'].startswith('[ALARM]'):
@@ -56,7 +55,6 @@ class HighlightXMPP(ClientXMPP):
 
 
 def get_config(config_file):
-
     try:
         config = open(config_file, 'r')
     except FileNotFoundError:
@@ -70,7 +68,6 @@ def get_config(config_file):
 
 
 def get_keywords(keywords_file):
-
     try:
         keywords = open(keywords_file, 'r')
     except FileNotFoundError:
@@ -92,7 +89,6 @@ def notify_send(summary, body, urgency='critical'):
 
 
 if __name__ == '__main__':
-
     try:
         config_dict = get_config('xmpp.json')
         jid = config_dict['jid']
