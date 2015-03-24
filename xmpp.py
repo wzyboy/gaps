@@ -81,7 +81,6 @@ def get_keywords(keywords_file):
 
 
 def notify_send(summary, body, urgency='critical'):
-
     cmd = ['notify-send', '-u', urgency, summary, body]
     env = dict(os.environ, DISPLAY=':0')
     subprocess.call(cmd, env=env)
