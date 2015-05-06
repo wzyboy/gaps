@@ -5,7 +5,7 @@ import sys
 import json
 import subprocess
 
-from time import strftime, localtime
+from time import strftime, localtime, sleep
 from getpass import getpass
 from termcolor import colored
 from sleekxmpp import ClientXMPP
@@ -34,7 +34,9 @@ class HighlightXMPP(ClientXMPP):
             self.disconnect()
         print('Loading keywords ...')
         self.keywords = get_keywords('keywords.json')
-        print('Loaded keywords:', self.keywords)
+        print('Loaded keywords:')
+        for keyword in self.keywords:
+            print(keyword, '\t=>', self.keywords[keyword])
         print("Initialization sequence completed. Ready for service.")
 
     def message_handler(self, msg):
@@ -46,6 +48,10 @@ class HighlightXMPP(ClientXMPP):
                 for keyword in self.keywords:
                     if msg['body'].find(keyword) > -1:
                         notify_send('HEADS UP!!!', msg['body'])
+                        if self.keywords[keyword]:
+                            for number in self.keywords[keyword]:
+                                skype_call(number)
+                                sleep(3)
             elif msg['body'].startswith('[RECOVERY]'):
                 mm = colored(msg['body'], 'green')
                 print(timestamp, mm)
@@ -74,10 +80,10 @@ def get_keywords(keywords_file):
         print(keywords_file, ' not found.')
         sys.exit(1)
 
-    keywords_list = json.load(keywords)["keywords"]
+    keywords_dict = json.load(keywords)
     keywords.close()
 
-    return keywords_list
+    return keywords_dict
 
 
 def notify_send(summary, body, urgency='critical'):

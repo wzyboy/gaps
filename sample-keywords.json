@@ -1,3 +1,5 @@
 {
-  "keywords": ["earthquake", "tornado"]
+  "earthquake": [],
+  "tornado": ["120"],
+  "aliens": ["911", "110", "120"]
 }
