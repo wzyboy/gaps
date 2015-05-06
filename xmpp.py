@@ -87,6 +87,20 @@ def notify_send(summary, body, urgency='critical'):
     print('Notify sent.')
 
 
+def skype_call(number, prefix='+86'):
+    if not str(number).startswith('+'):
+        _number = prefix + str(number)
+    else:
+        _number = str(number)
+    cmd = ['skype', '--call', _number]
+    env = dict(os.environ, DISPLAY=':0')
+    try:
+        subprocess.call(cmd, env=env)
+        print('Outgoing call: ', _number)
+    except subprocess.CalledProcessError:
+        print('Failed to call', _number)
+
+
 if __name__ == '__main__':
     try:
         config_dict = get_config('xmpp.json')
