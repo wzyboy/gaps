@@ -33,7 +33,7 @@ class HighlightXMPP(ClientXMPP):
             print('Server is taking too long to respond')
             self.disconnect()
         print('Loading keywords ...')
-        self.keywords = get_keywords('keywords.json')
+        self.keywords = get_dict('keywords.json')
         print('Loaded keywords:')
         for keyword in self.keywords:
             print(keyword, '\t=>', self.keywords[keyword])
@@ -60,30 +60,13 @@ class HighlightXMPP(ClientXMPP):
                 print(timestamp, mm)
 
 
-def get_config(config_file):
+def get_dict(dict_file):
     try:
-        config = open(config_file, 'r')
+        with open(dict_file, 'r') as fd:
+            return json.load(fd)
     except FileNotFoundError:
-        print(config_file, ' not found.')
+        print(dict_file, ' not found.')
         sys.exit(1)
-
-    config_dict = json.load(config)
-    config.close()
-
-    return config_dict
-
-
-def get_keywords(keywords_file):
-    try:
-        keywords = open(keywords_file, 'r')
-    except FileNotFoundError:
-        print(keywords_file, ' not found.')
-        sys.exit(1)
-
-    keywords_dict = json.load(keywords)
-    keywords.close()
-
-    return keywords_dict
 
 
 def notify_send(summary, body, urgency='critical'):
@@ -109,7 +92,7 @@ def skype_call(number, prefix='+86'):
 
 if __name__ == '__main__':
     try:
-        config_dict = get_config('xmpp.json')
+        config_dict = get_dict('xmpp.json')
         jid = config_dict['jid']
         resource = config_dict['resource']
         host = config_dict['host']
