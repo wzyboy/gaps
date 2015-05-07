@@ -7,6 +7,7 @@ import subprocess
 
 from time import strftime, localtime, sleep
 from getpass import getpass
+from datetime import datetime, time
 from termcolor import colored
 from sleekxmpp import ClientXMPP
 from sleekxmpp.exceptions import IqError, IqTimeout
@@ -76,7 +77,31 @@ def notify_send(summary, body, urgency='critical'):
     print('Notify sent.')
 
 
+def in_time_range():
+    try:
+        t1 = config_dict['call_start_hour']
+        t2 = config_dict['call_end_hour']
+    except KeyError:
+        t1, t2 = 0, 24
+    now_hour = datetime.now().hour
+    if t1 < t2:
+        if t1 <= now_hour < t2:
+            return True
+        else:
+            return False
+    elif t1 > t2:
+        if t1 <= now_hour < 24 or 0 <= now_hour < t2:
+            return True
+        else:
+            return False
+    else:
+        raise ValueError
+
+
 def skype_call(number, prefix='+86'):
+    if not in_time_range():
+        print('Not making calls')
+        return None
     if not str(number).startswith('+'):
         _number = prefix + str(number)
     else:

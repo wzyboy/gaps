@@ -3,5 +3,7 @@
   "password": "Delete this line for prompting",
   "resource": "sleekxmpp",
   "host": "xmpp.example.org",
-  "port": 5222
+  "port": 5222,
+  "call_start_hour": "0",
+  "call_end_hour": "8"
 }
