@@ -4,6 +4,6 @@
   "resource": "sleekxmpp",
   "host": "xmpp.example.org",
   "port": 5222,
-  "call_start_hour": "0",
-  "call_end_hour": "8"
+  "call_start_hour": 0,
+  "call_end_hour": 8
 }
