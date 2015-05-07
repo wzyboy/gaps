@@ -84,18 +84,11 @@ def in_time_range():
     except KeyError:
         t1, t2 = 0, 24
     now_hour = datetime.now().hour
-    if t1 < t2:
-        if t1 <= now_hour < t2:
-            return True
-        else:
-            return False
-    elif t1 > t2:
-        if t1 <= now_hour < 24 or 0 <= now_hour < t2:
-            return True
-        else:
-            return False
-    else:
-        raise ValueError
+    if t1 < t2 and t1 <= now_hour < t2:
+        return True
+    elif t1 > t2 and (t1 <= now_hour or now_hour < t2):
+        return True
+    return False
 
 
 def skype_call(number, prefix='+86'):
