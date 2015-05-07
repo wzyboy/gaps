@@ -82,7 +82,7 @@ def in_time_range():
         t1 = config_dict['call_start_hour']
         t2 = config_dict['call_end_hour']
     except KeyError:
-        t1, t2 = 0, 24
+        return True
     now_hour = datetime.now().hour
     if t1 < t2 and t1 <= now_hour < t2:
         return True
