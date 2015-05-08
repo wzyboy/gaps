@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import re
 import sys
 import json
 import subprocess
@@ -34,7 +35,11 @@ class HighlightXMPP(ClientXMPP):
             print('Server is taking too long to respond')
             self.disconnect()
         print('Loading keywords ...')
-        self.keywords = get_dict('keywords.json')
+        _keywords = get_dict('keywords.json')
+        self.keywords = {}
+        for _keyword in _keywords:
+            r = re.compile(_keyword, re.IGNORECASE)
+            self.keywords.update({r: _keywords[_keyword]})
         print('Loaded keywords:')
         for keyword in self.keywords:
             print(keyword, '\t=>', self.keywords[keyword])
@@ -47,7 +52,7 @@ class HighlightXMPP(ClientXMPP):
                 mm = colored(msg['body'], 'red')
                 print(timestamp, mm)
                 for keyword in self.keywords:
-                    if msg['body'].lower().find(keyword.lower()) > -1:
+                    if keyword.search(msg['body']):
                         notify_send('HEADS UP!!!', msg['body'])
                         if self.keywords[keyword]:
                             for number in self.keywords[keyword]:
