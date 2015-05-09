@@ -55,70 +55,73 @@ class HighlightXMPP(ClientXMPP):
             print(superuser, '\t=>', self.superusers[superuser])
 
     def alarm_handler(self, msg):
-        timestamp = strftime('%Y-%m-%d %H:%M:%S', localtime())
-        if msg['type'] in ('chat', 'normal'):
-            if msg['body'].startswith('[ALARM]'):
-                mm = colored(msg['body'], 'red')
-                print(timestamp, mm)
-                for keyword in self.keywords:
-                    if keyword.search(msg['body']):
-                        notify_send('HEADS UP!!!', msg['body'])
-                        if self.keywords[keyword]:
-                            for number in self.keywords[keyword]:
-                                skype_call(number)
-                                sleep(3)
-            elif msg['body'].startswith('[RECOVERY]'):
-                mm = colored(msg['body'], 'green')
-                print(timestamp, mm)
-            else:
-                mm = msg['body']
-                print(timestamp, mm)
+        if msg['type'] not in ('chat', 'normal'):
+            return None
+        if msg['body'].startswith('[ALARM]'):
+            timestamp = strftime('%Y-%m-%d %H:%M:%S', localtime())
+            mm = colored(msg['body'], 'red')
+            print(timestamp, mm)
+            for keyword in self.keywords:
+                if keyword.search(msg['body']):
+                    notify_send('HEADS UP!!!', msg['body'])
+                    if self.keywords[keyword]:
+                        for number in self.keywords[keyword]:
+                            skype_call(number)
+                            sleep(3)
+        elif msg['body'].startswith('[RECOVERY]'):
+            mm = colored(msg['body'], 'green')
+            print(timestamp, mm)
+        else:
+            mm = msg['body']
+            print(timestamp, mm)
 
     def command_handler(self, msg):
-        if msg['type'] in ('chat', 'normal'):
-            user = msg['from'].user
-            priv = self.superusers[user]  # A list or a single string "SHELL"
-            _path = os.environ['PWD'] + '/bin/:' + os.environ['PATH']
-            _env = dict(os.environ, PATH=_path)
-            if user in self.superusers:
-                if msg['body'].startswith('sh '):
-                    if priv == 'SHELL':
-                        cmd = msg['body'].split(' ', 1)[1]  # A string passed DIRECTLY to shell
-                        print('Handling command from {0}: {1}'.format(user, cmd))
-                        try:
-                            output = subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT, universal_newlines=True, env=_env)
-                            msg.reply('Shell output:\n{0}'.format(output)).send()
-                        except subprocess.CalledProcessError as e:
-                            msg.reply('Error:\n{0}'.format(e.output)).send()
-                    elif isinstance(priv, list):
-                        reply = ('Arbitrary shell commands not allowed for you.\n'
-                                 'You shall only execute these commands:\n'
-                                 '{0}.\n'
-                                 'Try: cmd <command>').format(priv)
-                        msg.reply(reply).send()
-                elif msg['body'].startswith('cmd '):
-                    if priv == 'SHELL':
-                        reply = ('You have the privilege to execute arbitrary shell commands.\n'
-                                 'Try: sh <command>\n'
-                                 'With great power comes great responsibility.')
-                        msg.reply(reply).send()
-                    cmd = msg['body'].split(' ')[1:]  # A list passed safely to subprocess
-                    if cmd[0] not in priv:
-                        reply = ('You shall only execute these commands:\n'
-                                 '{0}.').format(priv)
-                        msg.reply(reply).send()
-                    else:
-                        print('Handling command from {0}: {1}'.format(user, cmd))
-                        try:
-                            output = subprocess.check_output(cmd, shell=False, stderr=subprocess.STDOUT, universal_newlines=True, env=_env)
-                            msg.reply('Command output:\n{0}'.format(output)).send()
-                        except subprocess.CalledProcessError as e:
-                            msg.reply('Error:\n{0}'.format(e.output)).send()
-                elif msg['body'] == 'reload':
-                    self.reload_config()
-                    msg.reply('Reloaded.').send()
-                else:
-                    msg.reply("Sorry, didn't catch that.").send()
+        if msg['type'] not in ('chat', 'normal'):
+            return None
+        user = msg['from'].user
+        priv = self.superusers[user]  # A list or a single string "SHELL"
+        if user not in self.superusers:
+            return None
+        _path = os.environ['PWD'] + '/bin/:' + os.environ['PATH']
+        _env = dict(os.environ, PATH=_path)
+        if msg['body'].startswith('sh '):
+            if priv == 'SHELL':
+                cmd = msg['body'].split(' ', 1)[1]  # A string passed DIRECTLY to shell
+                print('Handling command from {0}: {1}'.format(user, cmd))
+                try:
+                    output = subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT, universal_newlines=True, env=_env)
+                    msg.reply('Shell output:\n{0}'.format(output)).send()
+                except subprocess.CalledProcessError as e:
+                    msg.reply('Error:\n{0}'.format(e.output)).send()
+            elif isinstance(priv, list):
+                reply = ('Arbitrary shell commands not allowed for you.\n'
+                         'You shall only execute these commands:\n'
+                         '{0}.\n'
+                         'Try: cmd <command>').format(priv)
+                msg.reply(reply).send()
+        elif msg['body'].startswith('cmd '):
+            if priv == 'SHELL':
+                reply = ('You have the privilege to execute arbitrary shell commands.\n'
+                         'Try: sh <command>\n'
+                         'With great power comes great responsibility.')
+                msg.reply(reply).send()
+            cmd = msg['body'].split(' ')[1:]  # A list passed safely to subprocess
+            if cmd[0] not in priv:
+                reply = ('You shall only execute these commands:\n'
+                         '{0}.').format(priv)
+                msg.reply(reply).send()
+            else:
+                print('Handling command from {0}: {1}'.format(user, cmd))
+                try:
+                    output = subprocess.check_output(cmd, shell=False, stderr=subprocess.STDOUT, universal_newlines=True, env=_env)
+                    msg.reply('Command output:\n{0}'.format(output)).send()
+                except subprocess.CalledProcessError as e:
+                    msg.reply('Error:\n{0}'.format(e.output)).send()
+        elif msg['body'] == 'reload':
+            self.reload_config()
+            msg.reply('Reloaded.').send()
+        else:
+            msg.reply("Sorry, didn't catch that.").send()
 
 
 def get_dict(dict_file):
