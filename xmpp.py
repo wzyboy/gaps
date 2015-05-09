@@ -91,16 +91,16 @@ class HighlightXMPP(ClientXMPP):
                         except subprocess.CalledProcessError as e:
                             msg.reply('Error:\n{0}'.format(e.output)).send()
                     elif isinstance(priv, list):
-                        reply = '''Arbitrary shell commands not allowed for you.\n
-                                You shall only execute these commands:\n
-                                {0}.
-                                Try: cmd <command>'''.format(priv)
+                        reply = ('Arbitrary shell commands not allowed for you.\n'
+                                 'You shall only execute these commands:\n'
+                                 '{0}.\n'
+                                 'Try: cmd <command>').format(priv)
                         msg.reply(reply).send()
                 elif msg['body'].startswith('cmd '):
                     cmd = msg['body'].split(' ')[1:]  # A list passed safely to subprocess
                     if cmd[0] not in priv:
-                        reply = '''You shall only execute these commands:\n
-                                {0}.'''.format(priv)
+                        reply = ('You shall only execute these commands:\n'
+                                 '{0}.').format(priv)
                         msg.reply(reply).send()
                     else:
                         print('Handling command from {0}: {1}'.format(user, cmd))
