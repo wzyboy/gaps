@@ -8,7 +8,7 @@ import subprocess
 
 from time import strftime, localtime, sleep
 from getpass import getpass
-from datetime import datetime, time
+from datetime import datetime
 from termcolor import colored
 from sleekxmpp import ClientXMPP
 from sleekxmpp.exceptions import IqError, IqTimeout
