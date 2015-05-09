@@ -20,7 +20,8 @@ class HighlightXMPP(ClientXMPP):
         ClientXMPP.__init__(self, jid, password)
 
         self.add_event_handler("session_start", self.session_start)
-        self.add_event_handler("message", self.message_handler)
+        self.add_event_handler("message", self.alarm_handler)
+        self.add_event_handler("message", self.command_handler)
 
     def session_start(self, event):
         print("Getting roster ...")
@@ -43,9 +44,12 @@ class HighlightXMPP(ClientXMPP):
         print('Loaded keywords:')
         for keyword in self.keywords:
             print(keyword, '\t=>', self.keywords[keyword])
+        print('Loading supersuer list ...')
+        self.superusers = config_dict.get('superusers', None)
+        print('Loaded superusers:', self.superusers)
         print("Initialization sequence completed. Ready for service.")
 
-    def message_handler(self, msg):
+    def alarm_handler(self, msg):
         timestamp = strftime('%Y-%m-%d %H:%M:%S', localtime())
         if msg['type'] in ('chat', 'normal'):
             if msg['body'].startswith('[ALARM]'):
@@ -64,6 +68,18 @@ class HighlightXMPP(ClientXMPP):
             else:
                 mm = msg['body']
                 print(timestamp, mm)
+
+    def command_handler(self, msg):
+        if msg['type'] in ('chat', 'normal'):
+            if msg['from'].user in self.superusers:
+                if msg['body'].startswith('shell '):
+                    cmd = msg['body'].split(' ', 1)[1]
+                    print('Handling command from {0}: {1}'.format(msg['from'].user, cmd))
+                    try:
+                        output = subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT, universal_newlines=True)
+                        msg.reply('Shell output:\n{0}'.format(output)).send()
+                    except subprocess.CalledProcessError as e:
+                        msg.reply('Error:\n{0}'.format(e.output)).send()
 
 
 def get_dict(dict_file):
