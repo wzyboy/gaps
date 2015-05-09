@@ -75,13 +75,15 @@ class HighlightXMPP(ClientXMPP):
         if msg['type'] in ('chat', 'normal'):
             user = msg['from'].user
             priv = self.superusers[user]  # A list or a single string "SHELL"
+            _path = os.environ['PWD'] + '/bin/:' + os.environ['PATH']
+            _env = dict(os.environ, PATH=_path)
             if user in self.superusers:
                 if msg['body'].startswith('sh '):
                     if priv == 'SHELL':
                         cmd = msg['body'].split(' ', 1)[1]  # A string passed DIRECTLY to shell
                         print('Handling command from {0}: {1}'.format(user, cmd))
                         try:
-                            output = subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT, universal_newlines=True)
+                            output = subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT, universal_newlines=True, env=_env)
                             msg.reply('Shell output:\n{0}'.format(output)).send()
                         except subprocess.CalledProcessError as e:
                             msg.reply('Error:\n{0}'.format(e.output)).send()
@@ -100,7 +102,7 @@ class HighlightXMPP(ClientXMPP):
                     else:
                         print('Handling command from {0}: {1}'.format(user, cmd))
                         try:
-                            output = subprocess.check_output(cmd, shell=False, stderr=subprocess.STDOUT, universal_newlines=True)
+                            output = subprocess.check_output(cmd, shell=False, stderr=subprocess.STDOUT, universal_newlines=True, env=_env)
                             msg.reply('Command output:\n{0}'.format(output)).send()
                         except subprocess.CalledProcessError as e:
                             msg.reply('Error:\n{0}'.format(e.output)).send()
