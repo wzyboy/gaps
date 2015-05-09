@@ -35,6 +35,9 @@ class HighlightXMPP(ClientXMPP):
         except IqTimeout:
             print('Server is taking too long to respond')
             self.disconnect()
+        self.reload_config()
+
+    def reload_config(self):
         print('Loading keywords ...')
         _keywords = get_dict('keywords.json')
         self.keywords = {}
@@ -106,6 +109,9 @@ class HighlightXMPP(ClientXMPP):
                             msg.reply('Command output:\n{0}'.format(output)).send()
                         except subprocess.CalledProcessError as e:
                             msg.reply('Error:\n{0}'.format(e.output)).send()
+                elif msg['body'] == 'reload':
+                    self.reload_config()
+                    msg.reply('Reloaded.').send()
                 else:
                     msg.reply("Sorry, didn't catch that.").send()
 
