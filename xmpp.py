@@ -97,6 +97,11 @@ class HighlightXMPP(ClientXMPP):
                                  'Try: cmd <command>').format(priv)
                         msg.reply(reply).send()
                 elif msg['body'].startswith('cmd '):
+                    if priv == 'SHELL':
+                        reply = ('You have the privilege to execute arbitrary shell commands.\n'
+                                 'Try: sh <command>\n'
+                                 'With great power comes great responsibility.')
+                        msg.reply(reply).send()
                     cmd = msg['body'].split(' ')[1:]  # A list passed safely to subprocess
                     if cmd[0] not in priv:
                         reply = ('You shall only execute these commands:\n'
