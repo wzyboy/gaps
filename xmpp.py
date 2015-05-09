@@ -36,6 +36,7 @@ class HighlightXMPP(ClientXMPP):
             print('Server is taking too long to respond')
             self.disconnect()
         self.reload_config()
+        print("Initialization sequence completed. Ready for service.")
 
     def reload_config(self):
         print('Loading keywords ...')
@@ -52,7 +53,6 @@ class HighlightXMPP(ClientXMPP):
         print('Loaded superusers:')
         for superuser in self.superusers:
             print(superuser, '\t=>', self.superusers[superuser])
-        print("Initialization sequence completed. Ready for service.")
 
     def alarm_handler(self, msg):
         timestamp = strftime('%Y-%m-%d %H:%M:%S', localtime())
