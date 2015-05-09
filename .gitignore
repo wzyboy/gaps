@@ -1,6 +1,7 @@
 # Project specific
 xmpp.json
 keywords.json
+superusers.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
