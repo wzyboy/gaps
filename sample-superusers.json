@@ -1,0 +1,4 @@
+{
+  "alice": "SHELL",
+  "bob": ["uname", "ls", "uptime", "foo.sh"]
+}

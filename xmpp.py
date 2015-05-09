@@ -45,8 +45,10 @@ class HighlightXMPP(ClientXMPP):
         for keyword in self.keywords:
             print(keyword, '\t=>', self.keywords[keyword])
         print('Loading supersuer list ...')
-        self.superusers = config_dict.get('superusers', None)
-        print('Loaded superusers:', self.superusers)
+        self.superusers = get_dict('superusers.json')
+        print('Loaded superusers:')
+        for superuser in self.superusers:
+            print(superuser, '\t=>', self.superusers[superuser])
         print("Initialization sequence completed. Ready for service.")
 
     def alarm_handler(self, msg):
@@ -71,15 +73,39 @@ class HighlightXMPP(ClientXMPP):
 
     def command_handler(self, msg):
         if msg['type'] in ('chat', 'normal'):
-            if msg['from'].user in self.superusers:
+            user = msg['from'].user
+            priv = self.superusers[user]  # A list or a single string "SHELL"
+            if user in self.superusers:
                 if msg['body'].startswith('shell '):
-                    cmd = msg['body'].split(' ', 1)[1]
-                    print('Handling command from {0}: {1}'.format(msg['from'].user, cmd))
-                    try:
-                        output = subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT, universal_newlines=True)
-                        msg.reply('Shell output:\n{0}'.format(output)).send()
-                    except subprocess.CalledProcessError as e:
-                        msg.reply('Error:\n{0}'.format(e.output)).send()
+                    if priv == 'SHELL':
+                        cmd = msg['body'].split(' ', 1)[1]  # A string passed DIRECTLY to shell
+                        print('Handling command from {0}: {1}'.format(user, cmd))
+                        try:
+                            output = subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT, universal_newlines=True)
+                            msg.reply('Shell output:\n{0}'.format(output)).send()
+                        except subprocess.CalledProcessError as e:
+                            msg.reply('Error:\n{0}'.format(e.output)).send()
+                    elif isinstance(priv, list):
+                        reply = '''Arbitrary shell commands not allowed for you.\n
+                                You shall only execute these commands:\n
+                                {0}.
+                                Try: command <command>'''.format(priv)
+                        msg.reply(reply).send()
+                elif msg['body'].startswith('command '):
+                    cmd = msg['body'].split(' ')[1:]  # A list passed safely to subprocess
+                    if cmd[0] not in priv:
+                        reply = '''You shall only execute these commands:\n
+                                {0}.'''.format(priv)
+                        msg.reply(reply).send()
+                    else:
+                        print('Handling command from {0}: {1}'.format(user, cmd))
+                        try:
+                            output = subprocess.check_output(cmd, shell=False, stderr=subprocess.STDOUT, universal_newlines=True)
+                            msg.reply('Command output:\n{0}'.format(output)).send()
+                        except subprocess.CalledProcessError as e:
+                            msg.reply('Error:\n{0}'.format(e.output)).send()
+                else:
+                    msg.reply("Sorry, didn't catch that.").send()
 
 
 def get_dict(dict_file):
