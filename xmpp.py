@@ -76,7 +76,7 @@ class HighlightXMPP(ClientXMPP):
             user = msg['from'].user
             priv = self.superusers[user]  # A list or a single string "SHELL"
             if user in self.superusers:
-                if msg['body'].startswith('shell '):
+                if msg['body'].startswith('sh '):
                     if priv == 'SHELL':
                         cmd = msg['body'].split(' ', 1)[1]  # A string passed DIRECTLY to shell
                         print('Handling command from {0}: {1}'.format(user, cmd))
@@ -89,9 +89,9 @@ class HighlightXMPP(ClientXMPP):
                         reply = '''Arbitrary shell commands not allowed for you.\n
                                 You shall only execute these commands:\n
                                 {0}.
-                                Try: command <command>'''.format(priv)
+                                Try: cmd <command>'''.format(priv)
                         msg.reply(reply).send()
-                elif msg['body'].startswith('command '):
+                elif msg['body'].startswith('cmd '):
                     cmd = msg['body'].split(' ')[1:]  # A list passed safely to subprocess
                     if cmd[0] not in priv:
                         reply = '''You shall only execute these commands:\n
