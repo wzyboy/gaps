@@ -1,4 +1,4 @@
 {
   "alice": "SHELL",
-  "bob": ["uname", "ls", "uptime", "foo.sh"]
+  "bob": ["uname", "ls", "uptime", "sample-script.sh"]
 }
