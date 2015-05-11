@@ -120,8 +120,8 @@ class HighlightXMPP(ClientXMPP):
             else:
                 print('Handling command from {0}: {1}'.format(user, cmd))
                 try:
-                    output = subprocess.check_output(cmd, shell=False, executable='/bin/bash', env=_env,
-                                                     stdin=_slave, stderr=subprocess.STDOUT, timeout=_timeout,
+                    output = subprocess.check_output(cmd, shell=False, env=_env, stdin=_slave,
+                                                     stderr=subprocess.STDOUT, timeout=_timeout,
                                                      universal_newlines=True)
                     msg.reply('Command output:\n{0}'.format(output)).send()
                 except subprocess.CalledProcessError as e:
