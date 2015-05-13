@@ -169,6 +169,9 @@ def skype_call(number, prefix='+86'):
     if not in_time_range():
         print('Not making calls')
         return None
+    if str(number).startswith('#'):
+        print('Ignoring number starts with pounds')
+        return None
     if not str(number).startswith('+'):
         _number = prefix + str(number)
     else:
