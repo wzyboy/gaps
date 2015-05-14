@@ -58,8 +58,8 @@ class HighlightXMPP(ClientXMPP):
     def alarm_handler(self, msg):
         if msg['type'] not in ('chat', 'normal'):
             return None
+        timestamp = strftime('%Y-%m-%d %H:%M:%S', localtime())
         if msg['body'].startswith('[ALARM]'):
-            timestamp = strftime('%Y-%m-%d %H:%M:%S', localtime())
             mm = colored(msg['body'], 'red')
             print(timestamp, mm)
             for keyword in self.keywords:
