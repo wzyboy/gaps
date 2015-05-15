@@ -1,8 +1,10 @@
-XMPP Highlight Notifier
-=======================
+GAPS - Generic Alarm Processing System
+======================================
 
-highlight.so for libpurple is broken. This tends to implement similar feature with SleekXMPP.
+- GAPS sends desktop notifications for pre-defined keywords ...
 
-libnotify (/usr/bin/notify-send) is required for sending heads-up notifications.
+- ... and optionally makes Skype phone calls.
 
-Skype will be invoked to make phone calls if phone numbers are defined.
+- GAPS could also execute commands for pre-defined superusers.
+
+- GAPS is still of prototype-grade quality and functionality.
