@@ -8,6 +8,7 @@ import json
 import subprocess
 
 from time import strftime, localtime, sleep
+from urllib.parse import quote
 from getpass import getpass
 from datetime import datetime
 from termcolor import colored
@@ -145,7 +146,7 @@ def get_dict(dict_file):
 
 
 def notify_send(summary, body, urgency='critical'):
-    cmd = ['notify-send', '-u', urgency, summary, body]
+    cmd = ['notify-send', '-u', urgency, quote(summary), quote(body)]
     env = dict(os.environ, DISPLAY=':0')
     subprocess.call(cmd, env=env)
     print('Notify sent.')
